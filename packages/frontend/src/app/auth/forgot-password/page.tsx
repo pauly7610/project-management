@@ -2,12 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Forgot Password - Motion Magic",
-  description: "Reset your Motion Magic account password",
-};
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

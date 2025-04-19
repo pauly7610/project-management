@@ -6,7 +6,7 @@ import { SignJWT } from 'jose';
 /**
  * Hashes a password using a secure one-way hash function
  */
-export function hashPassword(password: string): string {
+export async function hashPassword(password: string): Promise<string> {
   // In a production app, you should use bcrypt, argon2, or similar
   // This is a simplified version for demonstration purposes
   return crypto.createHash("sha256").update(password).digest("hex");
@@ -44,7 +44,7 @@ export async function generatePasswordResetToken(email: string): Promise<string>
 /**
  * Generates a verification token for email verification
  */
-export function generateVerificationToken(): string {
+export async function generateVerificationToken(): Promise<string> {
   return crypto.randomBytes(32).toString("hex");
 }
 
@@ -74,7 +74,7 @@ export async function generateJWT(payload: Record<string, any>): Promise<string>
 /**
  * Verifies a JWT token
  */
-export function verifyJWT(token: string): any | null {
+export async function verifyJWT(token: string): Promise<any | null> {
   try {
     const [header, payload, signature] = token.split(".");
     

@@ -3,12 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Github, Mail } from "lucide-react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sign In - Motion Magic",
-  description: "Sign in to your Motion Magic account",
-};
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");

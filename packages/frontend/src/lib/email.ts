@@ -35,7 +35,7 @@ export async function sendEmail({ to, subject, html }: SendEmailProps) {
   }
 }
 
-export function generateVerificationEmail(token: string, userEmail: string) {
+export async function generateVerificationEmail(token: string, userEmail: string) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const verificationUrl = `${baseUrl}/auth/verify?token=${token}&email=${encodeURIComponent(
     userEmail
@@ -76,7 +76,7 @@ export function generateVerificationEmail(token: string, userEmail: string) {
   return html;
 }
 
-export function generateResetPasswordEmail(token: string, userEmail: string) {
+export async function generateResetPasswordEmail(token: string, userEmail: string) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const resetUrl = `${baseUrl}/auth/reset-password?token=${token}&email=${encodeURIComponent(
     userEmail

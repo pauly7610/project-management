@@ -41,25 +41,27 @@ exports.authController = {
     // User registration
     signup: async (c) => {
         try {
-            const data = c.req.valid('json');
-            const result = await authService.registerUser(data);
+            const data = c.req.json();
+            const result = await authService.registerUser(await data);
             return c.json({
                 message: 'User created successfully. Please verify your email.',
                 user: result.user
-            }, http_status_1.StatusCode.Created);
+            }, 201 // Created
+            );
         }
         catch (error) {
             console.error('Signup error:', error);
             if (error instanceof Error && error.message.includes('already exists')) {
-                return c.json({ error: error.message }, http_status_1.StatusCode.Conflict);
+                return c.json({ error: error.message }, 409); // Conflict
             }
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     },
     // User login
     signin: async (c) => {
         try {
-            const { email, password, rememberMe } = c.req.valid('json');
+            const body = await c.req.json();
+            const { email, password, rememberMe } = body;
             const user = await authService.authenticateUser(email, password);
             // Generate JWT token
             const token = (0, jwt_1.generateToken)(user.id, rememberMe);
@@ -82,13 +84,13 @@ exports.authController = {
             console.error('Signin error:', error);
             if (error instanceof Error) {
                 if (error.message.includes('Invalid credentials')) {
-                    return c.json({ error: 'Invalid credentials' }, http_status_1.StatusCode.Unauthorized);
+                    return c.json({ error: 'Invalid credentials' }, 401); // Unauthorized
                 }
                 if (error.message.includes('verify your email')) {
-                    return c.json({ error: error.message }, http_status_1.StatusCode.Forbidden);
+                    return c.json({ error: error.message }, 403); // Forbidden
                 }
             }
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     },
     // Email verification
@@ -96,7 +98,7 @@ exports.authController = {
         try {
             const token = c.req.query('token');
             if (!token) {
-                return c.json({ error: 'Verification token is required' }, http_status_1.StatusCode.BadRequest);
+                return c.json({ error: 'Verification token is required' }, 400); // Bad Request
             }
             await authService.verifyEmail(token);
             // Redirect to verification success page
@@ -105,15 +107,16 @@ exports.authController = {
         catch (error) {
             console.error('Verification error:', error);
             if (error instanceof Error) {
-                return c.json({ error: error.message }, http_status_1.StatusCode.BadRequest);
+                return c.json({ error: error.message }, 400); // Bad Request
             }
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     },
     // Resend verification email
     resendVerification: async (c) => {
         try {
-            const { email } = c.req.valid('json');
+            const body = await c.req.json();
+            const { email } = body;
             await authService.resendVerificationEmail(email);
             return c.json({ message: 'Verification email sent' });
         }
@@ -121,19 +124,20 @@ exports.authController = {
             console.error('Resend verification error:', error);
             if (error instanceof Error) {
                 if (error.message.includes('not found')) {
-                    return c.json({ error: 'User not found' }, http_status_1.StatusCode.NotFound);
+                    return c.json({ error: 'User not found' }, 404); // Not Found
                 }
                 if (error.message.includes('already verified')) {
                     return c.json({ message: 'Email is already verified' });
                 }
             }
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     },
     // Request password reset
     requestPasswordReset: async (c) => {
         try {
-            const { email } = c.req.valid('json');
+            const body = await c.req.json();
+            const { email } = body;
             await authService.requestPasswordReset(email);
             // Don't reveal if a user exists for security reasons
             return c.json({
@@ -142,13 +146,14 @@ exports.authController = {
         }
         catch (error) {
             console.error('Password reset request error:', error);
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     },
     // Reset password with token
     resetPassword: async (c) => {
         try {
-            const data = c.req.valid('json');
+            const body = await c.req.json();
+            const data = body;
             await authService.resetPassword(data.token, data.email, data.password);
             return c.json({ message: 'Password reset successful' });
         }
@@ -156,13 +161,13 @@ exports.authController = {
             console.error('Reset password error:', error);
             if (error instanceof Error) {
                 if (error.message.includes('invalid') || error.message.includes('expired')) {
-                    return c.json({ error: error.message }, http_status_1.StatusCode.BadRequest);
+                    return c.json({ error: error.message }, 400); // Bad Request
                 }
                 if (error.message.includes('not found')) {
-                    return c.json({ error: 'User not found' }, http_status_1.StatusCode.NotFound);
+                    return c.json({ error: 'User not found' }, 404); // Not Found
                 }
             }
-            return c.json({ error: 'Internal server error' }, http_status_1.StatusCode.InternalServerError);
+            return c.json({ error: 'Internal server error' }, 500); // Internal Server Error
         }
     }
 };

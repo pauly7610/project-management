@@ -1,6 +1,3 @@
 import { Hono } from 'hono';
-import type { Variables } from '../types';
-declare const projectRouter: Hono<{
-    Variables: Variables;
-}, import("hono/types").BlankSchema, "/">;
-export { projectRouter };
+declare const projectRouter: Hono<import("hono/types").BlankEnv, import("hono/types").BlankSchema, "/">;
+export default projectRouter;

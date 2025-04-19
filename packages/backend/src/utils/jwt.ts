@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { SignOptions } from 'jsonwebtoken';
 
 // JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
@@ -12,11 +13,12 @@ const JWT_EXPIRES_LONG = process.env.JWT_EXPIRES_LONG || '30d';
  * @returns The signed JWT token
  */
 export function generateToken(userId: string, rememberMe = false): string {
-  return jwt.sign(
-    { userId },
-    JWT_SECRET,
-    { expiresIn: rememberMe ? JWT_EXPIRES_LONG : JWT_EXPIRES_SHORT }
-  );
+  const payload = { userId };
+  const options = { 
+    expiresIn: rememberMe ? JWT_EXPIRES_LONG : JWT_EXPIRES_SHORT 
+  } as SignOptions;
+  
+  return jwt.sign(payload, JWT_SECRET as jwt.Secret, options);
 }
 
 /**
@@ -26,7 +28,7 @@ export function generateToken(userId: string, rememberMe = false): string {
  */
 export function verifyToken(token: string): jwt.JwtPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET as jwt.Secret);
     return decoded as jwt.JwtPayload;
   } catch (error) {
     throw new Error('Invalid or expired token');

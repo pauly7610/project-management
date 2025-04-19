@@ -1,3 +1,6 @@
 import { Hono } from 'hono';
-declare const authRouter: Hono<import("hono/types").BlankEnv, import("hono/types").BlankSchema, "/">;
+import type { Variables } from '../types';
+declare const authRouter: Hono<{
+    Variables: Variables;
+}, import("hono/types").BlankSchema, "/">;
 export { authRouter };

@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const hono_1 = require("hono");
 const logger_1 = require("hono/logger");
@@ -7,7 +10,7 @@ const pretty_json_1 = require("hono/pretty-json");
 const secure_headers_1 = require("hono/secure-headers");
 // Import routes
 const auth_routes_1 = require("./routes/auth-routes");
-const project_routes_1 = require("./routes/project-routes");
+const project_routes_1 = __importDefault(require("./routes/project-routes"));
 const task_routes_1 = require("./routes/task-routes");
 const team_routes_1 = require("./routes/team-routes");
 // Create Hono app
@@ -23,7 +26,7 @@ app.get('/health', (c) => {
 });
 // Mount routers
 app.route('/api/auth', auth_routes_1.authRouter);
-app.route('/api/projects', project_routes_1.projectRouter);
+app.route('/api/projects', project_routes_1.default);
 app.route('/api/tasks', task_routes_1.taskRouter);
 app.route('/api/teams', team_routes_1.teamRouter);
 // Error handling

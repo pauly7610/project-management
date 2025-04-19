@@ -18,7 +18,11 @@ const JWT_EXPIRES_LONG = process.env.JWT_EXPIRES_LONG || '30d';
  * @returns The signed JWT token
  */
 function generateToken(userId, rememberMe = false) {
-    return jsonwebtoken_1.default.sign({ userId }, JWT_SECRET, { expiresIn: rememberMe ? JWT_EXPIRES_LONG : JWT_EXPIRES_SHORT });
+    const payload = { userId };
+    const options = {
+        expiresIn: rememberMe ? JWT_EXPIRES_LONG : JWT_EXPIRES_SHORT
+    };
+    return jsonwebtoken_1.default.sign(payload, JWT_SECRET, options);
 }
 /**
  * Verify a JWT token

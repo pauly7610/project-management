@@ -1,18 +1,24 @@
 import { Hono } from 'hono';
-import { authenticate } from '../middleware/auth-middleware';
-import type { Variables } from '../types';
+import { Context } from 'hono';
+import projectMiddleware from '../middleware/project-middleware';
+import { 
+  getAllProjects, 
+  getProjectById, 
+  createProject, 
+  updateProject, 
+  deleteProject 
+} from '../controllers/project-controller';
 
-// Create router for project endpoints
-const projectRouter = new Hono<{ Variables: Variables }>();
+const projectRouter = new Hono();
 
-// Apply authentication middleware to all project routes
-projectRouter.use('*', authenticate);
+// Apply middleware to all routes
+projectRouter.use('/*', projectMiddleware);
 
-// Define routes - will be implemented later
-projectRouter.get('/', (c) => c.json({ message: 'Get all projects' }));
-projectRouter.get('/:id', (c) => c.json({ message: `Get project ${c.req.param('id')}` }));
-projectRouter.post('/', (c) => c.json({ message: 'Create project' }, 201));
-projectRouter.put('/:id', (c) => c.json({ message: `Update project ${c.req.param('id')}` }));
-projectRouter.delete('/:id', (c) => c.json({ message: `Delete project ${c.req.param('id')}` }));
+// Define routes
+projectRouter.get('/', getAllProjects);
+projectRouter.get('/:id', getProjectById);
+projectRouter.post('/', createProject);
+projectRouter.put('/:id', updateProject);
+projectRouter.delete('/:id', deleteProject);
 
-export { projectRouter }; 
+export default projectRouter; 

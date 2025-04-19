@@ -1,7 +1,7 @@
-import { ContextVariables } from 'hono';
+import { ContextVariableMap } from 'hono';
 
 // Define custom variables for Hono context
-export interface Variables extends ContextVariables {
+export interface Variables extends ContextVariableMap {
   userId?: string;
 }
 

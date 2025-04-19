@@ -23,8 +23,9 @@ export declare function authenticateUser(email: string, password: string): Promi
     email: string;
     createdAt: Date;
     updatedAt: Date;
-    emailVerified?: Date | null | undefined;
-    image?: string | null | undefined;
+    emailVerified?: Date;
+    image?: string;
+    isVerified: boolean;
 }>;
 /**
  * Verify a user's email with token

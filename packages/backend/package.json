@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
+    "@hono/zod-validator": "^0.4.3",
     "@motion-magic/shared": "file:../shared",
     "@types/jsonwebtoken": "^9.0.5",
     "bcrypt": "^5.1.1",

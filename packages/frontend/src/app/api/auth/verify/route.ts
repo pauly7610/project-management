@@ -2,7 +2,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { users, verificationTokens } from "../signup/route";
+import { connectToDatabase } from "@/lib/db";
+import { User } from "@/models/user";
+import { VerificationToken } from "@/models/verification-token";
 
 // No longer need to redefine these maps since we're importing them
 // const users = new Map();
@@ -10,6 +12,9 @@ import { users, verificationTokens } from "../signup/route";
 
 export async function GET(request: NextRequest) {
   try {
+    // Connect to the database
+    await connectToDatabase();
+    
     // Get token from the URL
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
@@ -21,26 +26,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find the token in our verificationTokens map
-    let userEmail = null;
+    // Find the token in our database
+    const tokenDoc = await VerificationToken.findOne({ token });
     
-    // Convert map entries to array to avoid TypeScript iteration error
-    for (const [email, storedToken] of Array.from(verificationTokens.entries())) {
-      if (storedToken === token) {
-        userEmail = email;
-        break;
-      }
-    }
-
-    if (!userEmail) {
+    if (!tokenDoc) {
       return NextResponse.json(
         { error: "Invalid or expired verification token" },
         { status: 400 }
       );
     }
+    
+    // Check if token is expired
+    if (tokenDoc.expires < new Date()) {
+      await VerificationToken.deleteOne({ token });
+      return NextResponse.json(
+        { error: "Verification token has expired" },
+        { status: 400 }
+      );
+    }
 
+    const userEmail = tokenDoc.email;
+    
     // Get the user
-    const user = users.get(userEmail);
+    const user = await User.findOne({ email: userEmail });
     if (!user) {
       return NextResponse.json(
         { error: "User not found" },
@@ -50,14 +58,14 @@ export async function GET(request: NextRequest) {
 
     // Update user's verification status
     user.isVerified = true;
-    users.set(userEmail, user);
+    await user.save();
 
     // Remove the verification token
-    verificationTokens.delete(userEmail);
+    await VerificationToken.deleteOne({ token });
 
     // Redirect to login page with success message
     return NextResponse.redirect(
-      new URL("/login?verified=true", request.url)
+      new URL("/auth/signin?verified=true", request.url)
     );
   } catch (error) {
     console.error("Verification error:", error);
@@ -70,6 +78,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Connect to the database
+    await connectToDatabase();
+    
     const body = await request.json();
     const { email } = body;
     
@@ -80,7 +91,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const user = users.get(email);
+    const user = await User.findOne({ email });
     
     if (!user) {
       return NextResponse.json(
@@ -98,10 +109,15 @@ export async function POST(request: NextRequest) {
     
     // Generate a new verification token
     const token = crypto.randomBytes(32).toString("hex");
-    verificationTokens.set(token, email);
+    
+    await VerificationToken.create({
+      token,
+      email,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    });
     
     // In a real application, send a verification email
-    // sendVerificationEmail(email, token);
+    console.log(`Verification link: http://localhost:3000/auth/verify?token=${token}`);
     
     return NextResponse.json(
       { message: "Verification email sent" },

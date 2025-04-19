@@ -1,8 +1,20 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { Resend } from 'resend';
-import { SignUpData, User } from '@motion-magic/shared';
+import { SignUpData, User as SharedUser } from '@motion-magic/shared';
 import { generateVerificationEmail, generateResetPasswordEmail } from '../utils/email-templates';
+
+// Define User type with isVerified property
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+  emailVerified?: Date;
+  image?: string;
+  isVerified: boolean;
+}
 
 // Setup Resend email client
 const resend = new Resend(process.env.RESEND_API_KEY);

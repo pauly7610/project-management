@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     await createPasswordResetToken(email, resetToken);
 
     // Send the password reset email
-    const emailHtml = generateResetPasswordEmail(resetToken, email);
+    const emailHtml = await generateResetPasswordEmail(resetToken, email);
     await sendEmail({
       to: email,
       subject: "Reset your Motion Magic password",

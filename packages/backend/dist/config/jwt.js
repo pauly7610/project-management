@@ -13,11 +13,13 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const generateToken = (userId) => {
     const payload = { userId };
     const options = {
+        // Cast the expiresIn to any to sidestep TypeScript errors
         expiresIn: JWT_EXPIRES_IN
     };
     try {
-        // Use type assertion to make TypeScript happy
-        return jsonwebtoken_1.default.sign(payload, JWT_SECRET, options);
+        // Try with a Buffer which is accepted by the typings
+        const secretBuffer = Buffer.from(JWT_SECRET, 'utf-8');
+        return jsonwebtoken_1.default.sign(payload, secretBuffer, options);
     }
     catch (error) {
         console.error('Error generating token:', error);
@@ -27,8 +29,8 @@ const generateToken = (userId) => {
 exports.generateToken = generateToken;
 const verifyToken = (token) => {
     try {
-        // Use type assertion to make TypeScript happy
-        return jsonwebtoken_1.default.verify(token, JWT_SECRET);
+        const secretBuffer = Buffer.from(JWT_SECRET, 'utf-8');
+        return jsonwebtoken_1.default.verify(token, secretBuffer);
     }
     catch (error) {
         console.error('Error verifying token:', error);

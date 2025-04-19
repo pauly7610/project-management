@@ -12,9 +12,11 @@ export declare const authController: {
             updatedAt: string;
             isVerified: boolean;
         };
-    }, any, "json">) | (Response & import("hono").TypedResponse<{
+    }, 201, "json">) | (Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">)>;
+    }, 409, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 500, "json">)>;
     signin: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
         message: string;
         user: {
@@ -25,23 +27,35 @@ export declare const authController: {
         };
     }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">)>;
+    }, 401, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 403, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 500, "json">)>;
     verifyEmail: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">) | (Response & import("hono").TypedResponse<undefined, 302, "redirect">)>;
+    }, 400, "json">) | (Response & import("hono").TypedResponse<undefined, 302, "redirect">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 500, "json">)>;
     resendVerification: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
         message: string;
     }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">)>;
+    }, 404, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 500, "json">)>;
     requestPasswordReset: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
         message: string;
     }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">)>;
+    }, 500, "json">)>;
     resetPassword: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
         message: string;
     }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
         error: string;
-    }, any, "json">)>;
+    }, 400, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 404, "json">) | (Response & import("hono").TypedResponse<{
+        error: string;
+    }, 500, "json">)>;
 };

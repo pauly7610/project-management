@@ -2,24 +2,26 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { connectToDatabase } from "@/lib/db";
+import { User } from "@/models/user";
+import { VerificationToken } from "@/models/verification-token";
 
-// Export mock database for use in other API routes
-export const users = new Map();
-export const verificationTokens = new Map();
-
-// Simulate hashing a password
+// Simulate hashing a password (this should be replaced with bcrypt in production)
 const hashPassword = (password: string): string => {
   return crypto.createHash("sha256").update(password).digest("hex");
 };
 
-// Simulate creating a verification token
-const createVerificationToken = (email: string): string => {
+// Create a verification token
+const createVerificationToken = async (email: string): Promise<string> => {
   const token = crypto.randomBytes(32).toString("hex");
+  
   // Store token with 24 hour expiration
-  verificationTokens.set(token, {
+  await VerificationToken.create({
+    token,
     email,
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
+  
   return token;
 };
 
@@ -33,6 +35,9 @@ const sendVerificationEmail = async (email: string, token: string) => {
 
 export async function POST(request: NextRequest) {
   try {
+    // Connect to the database
+    await connectToDatabase();
+    
     const body = await request.json();
     const { name, email, password } = body;
 
@@ -62,7 +67,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    if (users.has(email)) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return NextResponse.json(
         { error: "User with this email already exists" },
         { status: 409 }
@@ -73,31 +79,29 @@ export async function POST(request: NextRequest) {
     const hashedPassword = hashPassword(password);
 
     // Create user
-    const newUser = {
-      id: crypto.randomUUID(),
+    const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
       isVerified: false,
-      createdAt: new Date(),
-    };
-
-    // Store user
-    users.set(email, newUser);
+    });
 
     // Create verification token
-    const verificationToken = createVerificationToken(email);
+    const verificationToken = await createVerificationToken(email);
 
     // Send verification email
     await sendVerificationEmail(email, verificationToken);
 
     // Return success response (without exposing the password)
-    const { password: _, ...userWithoutPassword } = newUser;
-    
     return NextResponse.json(
       { 
         message: "User created successfully. Please verify your email.", 
-        user: userWithoutPassword 
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          isVerified: newUser.isVerified,
+        }
       },
       { status: 201 }
     );

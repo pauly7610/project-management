@@ -1,5 +1,5 @@
-import { ContextVariables } from 'hono';
-export interface Variables extends ContextVariables {
+import { ContextVariableMap } from 'hono';
+export interface Variables extends ContextVariableMap {
     userId?: string;
 }
 export interface Env {
