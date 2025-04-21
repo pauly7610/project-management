@@ -47,7 +47,8 @@ const teamMembers = [
 const pendingInvites: any[] = [];
 
 export default function TeamManagementPage() {
-  const [activeTab, setActiveTab] = useState("team-members");
+  // eslint-disable-next-line no-unused-vars
+  const [activeTab, setActiveTab] = useState("members");
 
   return (
     <div className="space-y-6">

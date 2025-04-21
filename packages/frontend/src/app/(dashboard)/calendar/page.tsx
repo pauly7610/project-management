@@ -2,8 +2,7 @@ import { Button } from "@/components/ui/button";
 import { 
   ChevronLeft, 
   ChevronRight, 
-  Plus,
-  Calendar as CalendarIcon
+  Plus
 } from "lucide-react";
 
 export default function CalendarPage() {

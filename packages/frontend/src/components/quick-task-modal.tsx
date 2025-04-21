@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, X } from "lucide-react";
@@ -23,6 +24,7 @@ export function QuickTaskModal() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here we would normally save the task to the database
+    // eslint-disable-next-line no-console
     console.log("Creating task:", { taskTitle, dueDate, priority });
     
     // Show success notification

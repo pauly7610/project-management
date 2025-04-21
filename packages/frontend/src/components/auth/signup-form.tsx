@@ -1,10 +1,12 @@
 "use client";
 
+import React from 'react';
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function SignUpForm() {
+  // eslint-disable-next-line no-unused-vars
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

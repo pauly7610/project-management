@@ -37,7 +37,7 @@ export async function comparePassword(
 /**
  * Generates a password reset token
  */
-export async function generatePasswordResetToken(email: string): Promise<string> {
+export async function generatePasswordResetToken(): Promise<string> {
   return crypto.randomBytes(32).toString("hex");
 }
 

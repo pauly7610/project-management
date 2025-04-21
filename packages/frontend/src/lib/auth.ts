@@ -1,7 +1,20 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
-import { comparePasswords } from "./auth-utils";
+import { comparePassword } from "./auth-utils";
+
+// Extend the Session type to include id
+// eslint-disable-next-line no-unused-vars
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
 
 // Mock user data - replace with your database calls
 const users = [
@@ -45,7 +58,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await comparePasswords(
+        const isPasswordValid = await comparePassword(
           credentials.password,
           user.password
         );
@@ -81,7 +94,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub as string;
+        session.user = {
+          ...session.user,
+          id: token.sub as string
+        };
       }
       return session;
     },

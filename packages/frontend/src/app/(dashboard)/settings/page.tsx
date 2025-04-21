@@ -3,22 +3,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "next-themes";
 import { 
-  BellRing, 
-  Calendar, 
-  FileText, 
-  Globe, 
-  HardDrive, 
-  Key, 
-  LayoutGrid, 
-  Lock, 
-  Mail, 
-  Shield, 
+  BellRing,
+  Calendar,
+  FileText,
+  Globe,
+  HardDrive,
+  Key,
+  LayoutGrid,
+  Mail,
+  Shield,
   Workflow,
   Upload,
-  Database
+  Download
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -553,32 +551,6 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between p-3 border rounded-md">
                       <div className="flex items-center">
                         <div className="bg-blue-100 p-2 rounded-md mr-3">
-                          <Database className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Dropbox</h4>
-                          <p className="text-xs text-muted-foreground">Connect to your Dropbox account</p>
-                        </div>
-                      </div>
-                      <Button variant="default" size="sm">Connect</Button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 border rounded-md">
-                      <div className="flex items-center">
-                        <div className="bg-gray-100 p-2 rounded-md mr-3">
-                          <div className="h-5 w-5 text-black">&lt;/&gt;</div>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">GitHub</h4>
-                          <p className="text-xs text-muted-foreground">Connect to your GitHub repositories</p>
-                        </div>
-                      </div>
-                      <Button variant="default" size="sm">Connect</Button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 border rounded-md">
-                      <div className="flex items-center">
-                        <div className="bg-blue-100 p-2 rounded-md mr-3">
                           <div className="h-5 w-5 text-blue-600">A</div>
                         </div>
                         <div>
@@ -618,7 +590,9 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="border rounded-md p-4 flex flex-col items-center">
-                    <Database className="h-8 w-8 text-gray-500 mb-2" />
+                    <div className="h-8 w-8 text-gray-500 mb-2">
+                      <Download className="h-5 w-5 text-gray-500" />
+                    </div>
                     <h3 className="font-medium">Export as JSON</h3>
                     <p className="text-xs text-muted-foreground text-center mb-4">
                       Download your data in JSON format

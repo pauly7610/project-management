@@ -1,8 +1,9 @@
 "use client";
 
+import React from 'react';
 import { useState } from "react";
 import Link from "next/link";
-import { Github, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +43,37 @@ export default function SignInPage() {
     }
   };
 
-  const handleOAuthSignIn = (provider: string) => {
-    // In a real application, this would redirect to the OAuth provider
-    console.log(`Signing in with ${provider}`);
+  const handleOAuthSignIn = async (provider: string) => {
+    setIsSubmitting(true);
+    setError("");
+    
+    try {
+      const response = await fetch(`/api/auth/oauth/${provider.toLowerCase()}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to authenticate with ${provider}`);
+      }
+      
+      // If the OAuth service returns a redirect URL, navigate to it
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else if (data.success) {
+        // If successfully authenticated
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      console.error(`${provider} OAuth error:`, error);
+      setError(error.message || `Authentication with ${provider} failed`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -155,6 +185,7 @@ export default function SignInPage() {
           <button
             type="button"
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={() => handleOAuthSignIn('Google')}
           >
             <svg 
               className="h-5 w-5" 
@@ -172,6 +203,7 @@ export default function SignInPage() {
           <button
             type="button"
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={() => handleOAuthSignIn('GitHub')}
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
@@ -181,6 +213,7 @@ export default function SignInPage() {
           <button
             type="button"
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={() => handleOAuthSignIn('Support')}
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M10.9 2.1c-4.6.5-8.3 4.2-8.8 8.7-.5 4.6 2.3 8.8 6.7 10.1 4.4 1.3 9.2-.8 11.3-4.9 2.2-4.1 1.1-9.1-2.5-12C15.2 1.8 12.1 1.6 10.9 2.1zM10 6.5c3.6 0 6.5 2.9 6.5 6.5s-2.9 6.5-6.5 6.5-6.5-2.9-6.5-6.5 2.9-6.5 6.5-6.5zm1 10h-2v-2h2v2zm-1-3.8v.8h-1v-.8c0-1.4.8-2.6 2-3.1.7-.3 1.2-.8 1.2-1.5 0-1.1-.9-2-2-2s-2 .9-2 2h-1c0-1.7 1.3-3 3-3s3 1.3 3 3c0 1.2-.7 2.1-1.7 2.6-.9.4-1.5 1.2-1.5 2z" clipRule="evenodd" />

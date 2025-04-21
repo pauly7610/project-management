@@ -3,6 +3,11 @@ import { ContextVariableMap } from 'hono';
 // Define custom variables for Hono context
 export interface Variables extends ContextVariableMap {
   userId?: string;
+  projectData?: {
+    id: string;
+    ownerId: string;
+    [key: string]: any;
+  };
 }
 
 // Environment variables interface

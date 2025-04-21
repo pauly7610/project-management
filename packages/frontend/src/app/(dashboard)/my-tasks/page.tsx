@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Calendar, Filter, CheckCircle2, ArrowUpDown } from "lucide-react";
 
 export default function MyTasksPage() {

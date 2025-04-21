@@ -1,9 +1,10 @@
 import { Context } from 'hono';
+import type { Variables } from '../types';
 
 /**
  * Get all projects for the authenticated user
  */
-export const getAllProjects = async (c: Context) => {
+export const getAllProjects = async (c: Context<{ Variables: Variables }>) => {
   try {
     const userId = c.get('userId');
     
@@ -26,7 +27,7 @@ export const getAllProjects = async (c: Context) => {
 /**
  * Get a single project by ID
  */
-export const getProjectById = async (c: Context) => {
+export const getProjectById = async (c: Context<{ Variables: Variables }>) => {
   try {
     const projectData = c.get('projectData');
     
@@ -57,7 +58,7 @@ export const getProjectById = async (c: Context) => {
 /**
  * Create a new project
  */
-export const createProject = async (c: Context) => {
+export const createProject = async (c: Context<{ Variables: Variables }>) => {
   try {
     const userId = c.get('userId');
     // Parse request body
@@ -94,7 +95,7 @@ export const createProject = async (c: Context) => {
 /**
  * Update an existing project
  */
-export const updateProject = async (c: Context) => {
+export const updateProject = async (c: Context<{ Variables: Variables }>) => {
   try {
     const projectData = c.get('projectData');
     // Parse request body
@@ -133,7 +134,7 @@ export const updateProject = async (c: Context) => {
 /**
  * Delete a project
  */
-export const deleteProject = async (c: Context) => {
+export const deleteProject = async (c: Context<{ Variables: Variables }>) => {
   try {
     const projectId = c.req.param('id');
     

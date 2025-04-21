@@ -1,14 +1,17 @@
 import { Context } from 'hono';
+import type { Variables } from '../types';
 /**
  * Get all projects for the authenticated user
  */
-export declare const getAllProjects: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
+export declare const getAllProjects: (c: Context<{
+    Variables: Variables;
+}>) => Promise<(Response & import("hono").TypedResponse<{
     success: true;
     data: {
         id: string;
         name: string;
         description: string;
-        ownerId: any;
+        ownerId: string;
     }[];
 }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
     success: false;
@@ -17,13 +20,15 @@ export declare const getAllProjects: (c: Context) => Promise<(Response & import(
 /**
  * Get a single project by ID
  */
-export declare const getProjectById: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
+export declare const getProjectById: (c: Context<{
+    Variables: Variables;
+}>) => Promise<(Response & import("hono").TypedResponse<{
     success: true;
     data: {
-        id: any;
+        id: string;
         name: string;
         description: string;
-        ownerId: any;
+        ownerId: string;
         status: string;
         createdAt: string;
         updatedAt: string;
@@ -40,7 +45,9 @@ export declare const getProjectById: (c: Context) => Promise<(Response & import(
 /**
  * Create a new project
  */
-export declare const createProject: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
+export declare const createProject: (c: Context<{
+    Variables: Variables;
+}>) => Promise<(Response & import("hono").TypedResponse<{
     success: false;
     message: string;
 }, 400, "json">) | (Response & import("hono").TypedResponse<{
@@ -50,7 +57,7 @@ export declare const createProject: (c: Context) => Promise<(Response & import("
         id: string;
         name: any;
         description: any;
-        ownerId: any;
+        ownerId: string;
         status: string;
         createdAt: string;
         updatedAt: string;
@@ -62,18 +69,20 @@ export declare const createProject: (c: Context) => Promise<(Response & import("
 /**
  * Update an existing project
  */
-export declare const updateProject: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
+export declare const updateProject: (c: Context<{
+    Variables: Variables;
+}>) => Promise<(Response & import("hono").TypedResponse<{
     success: false;
     message: string;
 }, 400, "json">) | (Response & import("hono").TypedResponse<{
     success: true;
     message: string;
     data: {
-        id: any;
+        id: string;
         name: any;
         description: any;
         status: any;
-        ownerId: any;
+        ownerId: string;
         updatedAt: string;
     };
 }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{
@@ -83,7 +92,9 @@ export declare const updateProject: (c: Context) => Promise<(Response & import("
 /**
  * Delete a project
  */
-export declare const deleteProject: (c: Context) => Promise<(Response & import("hono").TypedResponse<{
+export declare const deleteProject: (c: Context<{
+    Variables: Variables;
+}>) => Promise<(Response & import("hono").TypedResponse<{
     success: true;
     message: string;
 }, import("hono/utils/http-status").ContentfulStatusCode, "json">) | (Response & import("hono").TypedResponse<{

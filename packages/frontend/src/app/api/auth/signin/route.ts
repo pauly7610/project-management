@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { users } from "../signup/route";
 
-// No longer need to redefine users Map since we're importing it
-// const users = new Map();
+// Mock users database (in a real app, this would be a database)
+const users = new Map([
+  ["john@example.com", {
+    id: "123",
+    name: "John Doe",
+    email: "john@example.com",
+    password: crypto.createHash("sha256").update("password123").digest("hex"),
+    isVerified: true
+  }],
+  ["jane@example.com", {
+    id: "456",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    password: crypto.createHash("sha256").update("password456").digest("hex"),
+    isVerified: true
+  }]
+]);
 
 // Simulate comparing a password with its hash
 const comparePasswords = (password: string, hashedPassword: string): boolean => {
@@ -13,7 +27,8 @@ const comparePasswords = (password: string, hashedPassword: string): boolean => 
 
 // Simulate generating a session token
 const generateSessionToken = (userId: string): string => {
-  return crypto.randomBytes(32).toString("hex");
+  // Include the userId in the token generation process to make it unique per user
+  return crypto.randomBytes(16).toString("hex") + userId.substring(0, 8);
 };
 
 export async function POST(request: NextRequest) {

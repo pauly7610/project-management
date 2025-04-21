@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate a password reset token
-    const resetToken = await generatePasswordResetToken(email);
+    const resetToken = await generatePasswordResetToken();
     
     // Save the token in the database
     await createPasswordResetToken(email, resetToken);
@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    // eslint-disable-next-line no-console
     console.error("Reset password request error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
@@ -164,6 +165,7 @@ export async function PUT(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    // eslint-disable-next-line no-console
     console.error("Reset password error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { User } from "@/models/user";
-import { comparePassword, generateJWT } from "@/lib/auth-utils";
+import { generateJWT } from "@/lib/auth-utils";
 
 interface UserDocument {
   _id: any;
   name: string;
   email: string;
-  password: string;
   isVerified: boolean;
+  // eslint-disable-next-line no-unused-vars
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     // Connect to the database
     await connectToDatabase();
     
+    // Extract credentials from request body
     const { email, password } = await request.json();
 
     // Input validation
@@ -75,6 +76,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Login error:", error);
     return NextResponse.json(
       { error: "An error occurred during login" },

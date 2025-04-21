@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -37,6 +37,7 @@ export default function VerifyPage() {
           router.push("/auth/signin?verified=true");
         }, 3000);
       } catch (error: any) {
+        // eslint-disable-next-line no-console
         console.error("Verification error:", error);
         setStatus("error");
         setErrorMessage(error.message || "An error occurred during verification");
@@ -132,5 +133,28 @@ export default function VerifyPage() {
         Sign In Now
       </Link>
     </div>
+  );
+}
+
+// Loading fallback for the Suspense boundary
+function VerifyPageLoading() {
+  return (
+    <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
+      <div className="text-center mb-6">
+        <div className="flex justify-center mb-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800"></div>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-800">Loading verification</h1>
+        <p className="text-gray-600 mt-2">Please wait...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<VerifyPageLoading />}>
+      <VerifyPageContent />
+    </Suspense>
   );
 } 

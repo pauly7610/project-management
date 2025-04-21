@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
       new URL("/auth/signin?verified=true", request.url)
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Verification error:", error);
     return NextResponse.json(
       { error: "An error occurred during verification" },
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
     });
     
     // In a real application, send a verification email
+    // eslint-disable-next-line no-console
     console.log(`Verification link: http://localhost:3000/auth/verify?token=${token}`);
     
     return NextResponse.json(
@@ -124,6 +126,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Resend verification error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

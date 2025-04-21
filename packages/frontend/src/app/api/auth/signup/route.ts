@@ -27,7 +27,9 @@ const createVerificationToken = async (email: string): Promise<string> => {
 
 // Simulate sending a verification email
 const sendVerificationEmail = async (email: string, token: string) => {
+  // eslint-disable-next-line no-console
   console.log(`Sending verification email to ${email}`);
+  // eslint-disable-next-line no-console
   console.log(`Verification link: http://localhost:3000/auth/verify?token=${token}&email=${encodeURIComponent(email)}`);
   // In a real app, you would use a service like SendGrid, Mailgun, etc.
   return true;
@@ -106,6 +108,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

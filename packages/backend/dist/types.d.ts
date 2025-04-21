@@ -1,6 +1,11 @@
 import { ContextVariableMap } from 'hono';
 export interface Variables extends ContextVariableMap {
     userId?: string;
+    projectData?: {
+        id: string;
+        ownerId: string;
+        [key: string]: any;
+    };
 }
 export interface Env {
     NODE_ENV: string;

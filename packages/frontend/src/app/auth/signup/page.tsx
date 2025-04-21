@@ -1,8 +1,8 @@
 "use client";
 
+import React from 'react';
 import { useState } from "react";
 import Link from "next/link";
-import { Github, Mail } from "lucide-react";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -13,7 +13,7 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Validation checks
@@ -54,14 +54,22 @@ export default function SignUpPage() {
       */
       
       // This is just for demo purposes
+      // eslint-disable-next-line no-console
       console.log("Sign up successful");
       window.location.href = "/dashboard";
     } catch (error: any) {
+      // eslint-disable-next-line no-console
       console.error("Sign up error:", error);
       setError(error.message || "Failed to create account");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleOAuthSignIn = (provider: string) => {
+    // eslint-disable-next-line no-console
+    console.log(`Signing in with ${provider}`);
+    alert(`${provider} sign-in not implemented in this demo`);
   };
 
   return (
@@ -204,6 +212,7 @@ export default function SignUpPage() {
         <div className="mt-6 grid grid-cols-3 gap-3">
           <button
             type="button"
+            onClick={() => handleOAuthSignIn('Google')}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <svg 
@@ -221,6 +230,7 @@ export default function SignUpPage() {
 
           <button
             type="button"
+            onClick={() => handleOAuthSignIn('GitHub')}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -230,6 +240,7 @@ export default function SignUpPage() {
 
           <button
             type="button"
+            onClick={() => handleOAuthSignIn('Support')}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">

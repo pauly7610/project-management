@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 // Define the methods as a separate interface
 interface IUserMethods {
+  // eslint-disable-next-line no-unused-vars
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

@@ -7,13 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download } from "lucide-react";
 
 export default function ROICalculatorPage() {
-  const [activeTab, setActiveTab] = useState("calculator");
-
-  // Initial values for the calculator
+  // Define states for the calculator inputs
   const [teamSize, setTeamSize] = useState(5);
   const [hourlyRate, setHourlyRate] = useState(50);
   const [hoursPerWeek, setHoursPerWeek] = useState(40);
-  const [efficiencyGain, setEfficiencyGain] = useState(30);
+  const [efficiencyGain, setEfficiencyGain] = useState(20);
+  
+  // For tab handling - we're only implementing the Calculator tab for now
+  // eslint-disable-next-line no-unused-vars
+  const [activeTab, setActiveTab] = useState("calculator");
 
   // Calculate ROI metrics
   const weeklyHoursSaved = (teamSize * hoursPerWeek * efficiencyGain) / 100;

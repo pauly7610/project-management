@@ -1,10 +1,11 @@
 import { Context, MiddlewareHandler, Next } from 'hono';
+import type { Variables } from '../types';
 
 /**
  * Project middleware to verify project existence and ownership
  * This middleware will be used on project routes to ensure project exists and user has access
  */
-const projectMiddleware: MiddlewareHandler = async (c: Context, next: Next) => {
+const projectMiddleware: MiddlewareHandler = async (c: Context<{ Variables: Variables }>, next: Next) => {
   try {
     // Get user ID from authentication middleware
     const userId = c.get('userId');
