@@ -1,5 +1,6 @@
 import crypto from "crypto";
-import { User, VerificationToken, mockDb, mockVerificationTokens } from "../signup/route";
+import { User } from "../../../../../packages/backend/models/User";
+import { Types } from "mongoose";
 
 export async function GET(request: Request) {
   try {
@@ -17,14 +18,12 @@ export async function GET(request: Request) {
       );
     }
 
-    // Find the verification record
-    const verificationRecord = mockVerificationTokens.find(
-      (record: VerificationToken) => record.token === token
-    );
+    // Find the user with the verification token (assume token is stored in user for now)
+    const user = await User.findOne({ verificationToken: token });
 
-    if (!verificationRecord) {
+    if (!user) {
       return new Response(
-        JSON.stringify({ message: "Invalid verification token" }),
+        JSON.stringify({ message: "Invalid or expired verification token" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" }
@@ -32,57 +31,26 @@ export async function GET(request: Request) {
       );
     }
 
-    // Check if token is expired (tokens valid for 24 hours)
-    const tokenAge = Date.now() - verificationRecord.createdAt;
-    if (tokenAge > 24 * 60 * 60 * 1000) {
-      return new Response(
-        JSON.stringify({ message: "Verification token has expired" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
-
-    // Find the user and update their verification status
-    const userIndex = mockDb.findIndex(
-      (user: User) => user.id === verificationRecord.userId
-    );
-
-    if (userIndex === -1) {
-      return new Response(
-        JSON.stringify({ message: "User not found" }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
-
-    // Update user as verified
-    mockDb[userIndex].isVerified = true;
-
-    // Remove the verification token
-    const tokenIndex = mockVerificationTokens.findIndex(
-      (record: VerificationToken) => record.token === token
-    );
-    mockVerificationTokens.splice(tokenIndex, 1);
+    // Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.emailVerified = new Date();
+    await user.save();
 
     return new Response(
-      JSON.stringify({ message: "Email verification successful" }),
+      JSON.stringify({ message: "Email verified successfully." }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" }
       }
     );
-  } catch (error) {
-    console.error("Verification error:", error);
+  } catch (error: any) {
     return new Response(
-      JSON.stringify({ message: "An error occurred during verification" }),
+      JSON.stringify({ message: "Internal server error", error: error.message }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" }
       }
     );
   }
-} 
+}

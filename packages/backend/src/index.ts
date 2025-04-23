@@ -7,6 +7,8 @@ import { connectDB } from './config/database';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import cookieParser from 'cookie-parser';
+import { requireAuth } from './middleware/auth';
 
 // Import all models to ensure they are registered
 import { User, Project, Task, Event, Settings } from './models';
@@ -32,6 +34,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 // ********** AUTH ROUTES **********
 const authRouter = express.Router();
@@ -409,9 +412,9 @@ teamRouter.get('/members', async (req, res) => {
 
 // Mount routers
 app.use('/api/auth', authRouter);
-app.use('/api/projects', projectRouter);
-app.use('/api/tasks', taskRouter);
-app.use('/api/teams', teamRouter);
+app.use('/api/projects', requireAuth, projectRouter);
+app.use('/api/tasks', requireAuth, taskRouter);
+app.use('/api/teams', requireAuth, teamRouter);
 app.use('/api/events', eventRouter);
 app.use('/api/settings', settingsRouter);
 
@@ -429,20 +432,18 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start the server
-async function startServer() {
-  try {
-    // Connect to MongoDB
-    await connectDB();
-    
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
-    });
-    
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+// Connect to MongoDB before starting the server
+connectDB().then(() => {
+  // Start the server
+  async function startServer() {
+    try {
+      app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    }
   }
-}
-
-startServer(); 
+  startServer();
+});

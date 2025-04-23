@@ -8,9 +8,13 @@
   "scripts": {
     "dev": "npm run dev --workspace=@motion-magic/frontend",
     "build": "npm run build --workspace=@motion-magic/frontend",
+    "build:shared": "npm run build --workspace=@motion-magic/shared",
+    "build:backend": "npm run build --workspace=@motion-magic/backend",
+    "build:frontend": "npm run build --workspace=@motion-magic/frontend",
+    "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
     "start": "npm run start --workspace=@motion-magic/frontend",
     "lint": "npm run lint --workspace=@motion-magic/frontend",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build:all"
   },
   "engines": {
     "node": ">=18.x",

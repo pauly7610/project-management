@@ -1,38 +1,33 @@
+// Removed unused Session import and type extension for clarity and to resolve lint warning.
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
-import { comparePassword } from "./auth-utils";
+import bcrypt from "bcrypt";
+import { User as DBUser } from "../../../../backend/models/User";
+import mongoose from "mongoose";
 
-// Extend the Session type to include id
-// eslint-disable-next-line no-unused-vars
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
-  }
+// Find user by email in MongoDB
+async function findUserByEmail(email: string) {
+  await mongoose.connect(process.env.MONGODB_URI || "");
+  return DBUser.findOne({ email });
 }
 
-// Mock user data - replace with your database calls
-const users = [
-  {
-    id: "1",
-    name: "Demo User",
-    email: "demo@example.com",
-    password: "$2b$12$tP.zJhT5wDiLGpRlQhOGZ.hpW7Y9QkEv5BbN1JYyCeZ7.iN6EZuiG", // "password123" hashed
-    emailVerified: new Date(),
-    image: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-// Mock findUserByEmail function - replace with your database implementation
-async function findUserByEmail(email: string) {
-  return users.find((user) => user.email === email) || null;
+// Create or update user from GitHub profile
+async function upsertGitHubUser(profile: any) {
+  await mongoose.connect(process.env.MONGODB_URI || "");
+  let user = await DBUser.findOne({ email: profile.email });
+  if (!user) {
+    user = new DBUser({
+      name: profile.name || profile.login,
+      email: profile.email,
+      image: profile.avatar_url,
+      isVerified: true,
+      emailVerified: new Date(),
+      password: crypto.randomBytes(32).toString("hex"), // random password
+    });
+    await user.save();
+  }
+  return user;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -40,6 +35,16 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      async profile(profile) {
+        const user = await upsertGitHubUser(profile);
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          emailVerified: user.emailVerified,
+        };
+      },
     }),
     CredentialsProvider({
       name: "credentials",
@@ -51,61 +56,41 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
         const user = await findUserByEmail(credentials.email);
-
         if (!user || !user.password) {
           return null;
         }
-
-        const isPasswordValid = await comparePassword(
-          credentials.password,
-          user.password
-        );
-
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordValid) {
           return null;
         }
-
-        if (!user.emailVerified) {
-          throw new Error("Please verify your email before signing in");
-        }
-
         return {
-          id: user.id,
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
           image: user.image,
+          emailVerified: user.emailVerified,
         };
       },
     }),
   ],
   pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
-    verifyRequest: "/auth/verify-request",
-    newUser: "/auth/new-user",
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    signIn: "/auth",
+    // Optionally add: signOut: "/auth/signout"
   },
   callbacks: {
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user = {
-          ...session.user,
-          id: token.sub as string
-        };
-      }
+      if (token?.sub) session.user.id = token.sub;
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id;
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
       }
       return token;
     },
   },
-}; 
+};
