@@ -1,4 +1,11 @@
+// Dashboard page
+// (This is the canonical dashboard page. The duplicate in (dashboard)/dashboard/page.tsx is disabled.)
+
+"use client";
+
 import { useAuth } from "../../hooks/useAuth";
+
+// Add your dashboard page implementation here.
 
 export default function DashboardPage() {
   const { loading, authenticated } = useAuth();
@@ -7,9 +14,6 @@ export default function DashboardPage() {
   if (!authenticated) return null;
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <p>Welcome to your protected dashboard!</p>
-    </div>
+    <div>Dashboard</div>
   );
 }

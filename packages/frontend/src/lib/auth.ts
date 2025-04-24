@@ -1,33 +1,24 @@
-// Removed unused Session import and type extension for clarity and to resolve lint warning.
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
-import bcrypt from "bcrypt";
-import { User as DBUser } from "../../../../backend/models/User";
+// import bcrypt from "bcrypt";
+// import { User as DBUser } from "../../../../backend/models/User";
 import mongoose from "mongoose";
 
-// Find user by email in MongoDB
-async function findUserByEmail(email: string) {
-  await mongoose.connect(process.env.MONGODB_URI || "");
-  return DBUser.findOne({ email });
-}
 
 // Create or update user from GitHub profile
 async function upsertGitHubUser(profile: any) {
   await mongoose.connect(process.env.MONGODB_URI || "");
-  let user = await DBUser.findOne({ email: profile.email });
-  if (!user) {
-    user = new DBUser({
-      name: profile.name || profile.login,
-      email: profile.email,
-      image: profile.avatar_url,
-      isVerified: true,
-      emailVerified: new Date(),
-      password: crypto.randomBytes(32).toString("hex"), // random password
-    });
-    await user.save();
-  }
-  return user;
+  // Replace with API call or shared package import
+  return {
+    _id: "mock-id",
+    name: profile.name || profile.login,
+    email: profile.email,
+    image: profile.avatar_url,
+    isVerified: true,
+    emailVerified: new Date(),
+    password: "",
+  };
 }
 
 export const authOptions: NextAuthOptions = {
@@ -42,7 +33,6 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
-          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -53,24 +43,32 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials) return null;
+        const { email, password } = credentials;
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/signin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+          if (!res.ok) {
+            return null;
+          }
+          const data = await res.json();
+          // NextAuth expects a user object (id, name, email, image, etc)
+          if (data && data.user) {
+            return {
+              id: data.user.id || data.user._id,
+              name: data.user.name,
+              email: data.user.email,
+              image: data.user.image || null
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error("Authorize error:", error);
           return null;
         }
-        const user = await findUserByEmail(credentials.email);
-        if (!user || !user.password) {
-          return null;
-        }
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordValid) {
-          return null;
-        }
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          emailVerified: user.emailVerified,
-        };
       },
     }),
   ],
@@ -80,16 +78,11 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      if (token?.sub) session.user.id = token.sub;
+      session.user = token.user as any;
       return session;
     },
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.picture = user.image;
-      }
+      if (user) token.user = user;
       return token;
     },
   },

@@ -13,6 +13,7 @@ export interface IUser extends Document {
   verificationToken?: string;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  integrations?: Record<string, { accessToken: string }>;
 }
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -27,6 +28,7 @@ const UserSchema: Schema = new Schema<IUser>({
   verificationToken: { type: String, default: null },
   passwordResetToken: { type: String, default: null },
   passwordResetExpires: { type: Date, default: null },
+  integrations: { type: Schema.Types.Mixed, default: {} },
 });
 
 UserSchema.pre('save', function (next) {

@@ -10,6 +10,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const database_1 = require("./config/database");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const auth_1 = require("./middleware/auth");
 // Import all models to ensure they are registered
 const models_1 = require("./models");
 // Load environment variables
@@ -31,6 +33,7 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)('dev'));
+app.use((0, cookie_parser_1.default)());
 // ********** AUTH ROUTES **********
 const authRouter = express_1.default.Router();
 // Signup
@@ -316,9 +319,9 @@ teamRouter.get('/members', async (req, res) => {
 });
 // Mount routers
 app.use('/api/auth', authRouter);
-app.use('/api/projects', projectRouter);
-app.use('/api/tasks', taskRouter);
-app.use('/api/teams', teamRouter);
+app.use('/api/projects', auth_1.requireAuth, projectRouter);
+app.use('/api/tasks', auth_1.requireAuth, taskRouter);
+app.use('/api/teams', auth_1.requireAuth, teamRouter);
 app.use('/api/events', eventRouter);
 app.use('/api/settings', settingsRouter);
 // Health check
@@ -333,19 +336,20 @@ app.use((err, req, res, next) => {
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
-// Start the server
-async function startServer() {
-    try {
-        // Connect to MongoDB
-        await (0, database_1.connectDB)();
-        app.listen(PORT, () => {
-            console.log(`Server running at http://localhost:${PORT}`);
-        });
+// Connect to MongoDB before starting the server
+(0, database_1.connectDB)().then(() => {
+    // Start the server
+    async function startServer() {
+        try {
+            app.listen(PORT, () => {
+                console.log(`Server running at http://localhost:${PORT}`);
+            });
+        }
+        catch (error) {
+            console.error('Failed to start server:', error);
+            process.exit(1);
+        }
     }
-    catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
-}
-startServer();
+    startServer();
+});
 //# sourceMappingURL=index.js.map
