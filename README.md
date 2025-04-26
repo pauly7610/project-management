@@ -1,6 +1,6 @@
 # Motion Magic - Project Management
 
-A modern project management application built with Next.js, React, MongoDB, and Tailwind CSS.
+A modern project management application built with Next.js, React, **PostgreSQL (via Prisma)**, and Tailwind CSS.
 
 ## Features
 
@@ -13,12 +13,14 @@ A modern project management application built with Next.js, React, MongoDB, and 
 - ROI calculator
 - User retention analytics
 - User authentication with email verification
+- **CRUD for Projects, Tasks, Events, and Users**
+- Integrations with popular tools (GitHub, Slack, Asana, etc.)
 
 ## Tech Stack
 
 - **Frontend**: Next.js, React, TypeScript, Tailwind CSS
 - **Backend**: Hono.js, Express, Node.js
-- **Database**: MongoDB with Mongoose
+- **Database**: **PostgreSQL with Prisma**
 - **UI Components**: shadcn/ui with Radix UI primitives
 - **State Management**: React Hooks, Context API
 - **Data Fetching**: TanStack Query
@@ -34,64 +36,57 @@ This project uses a monorepo structure with three main packages:
 2. **Backend Package** (`packages/backend`): Standalone API server using Hono.js
 3. **Shared Package** (`packages/shared`): Common types and utilities
 
-The application supports two different approaches for handling API requests:
+## API Overview
 
-### 1. MongoDB Direct Connection
+All endpoints now use **Prisma** for database operations with PostgreSQL. The following RESTful endpoints are available:
 
-The frontend connects directly to MongoDB for authentication and data operations.
-Routes implemented at `/src/app/api/auth/*` in the frontend package.
+### Auth
+- `/api/auth/signup` — User registration
+- `/api/auth/signin` — User login
+- `/api/auth/forgot-password` — Request password reset
+- `/api/auth/reset-password` — Reset password
+- `/api/auth/verify` — Email verification
+- `/api/auth/verify-email` — Email verification (alias)
+- `/api/auth/me` — Get current user info
 
-**Pros:**
+### Teams
+- `/api/teams/create` — Create team
+- `/api/teams/invite` — Invite member
+- `/api/teams/check-name` — Check team name uniqueness
 
-- Simpler deployment (no need for a separate backend)
-- Lower latency (direct database access)
+### Onboarding
+- `/api/onboarding/status` — Get onboarding status
 
-**Cons:**
+### Integrations
+- `/api/integrations/list` — List available integrations
+- `/api/integrations/connect` — Connect a tool
+- `/api/integrations/oauth/start` — Start OAuth flow
+- `/api/integrations/oauth/callback` — Handle OAuth callback
 
-- Duplicates database logic between frontend and backend
-- May expose database connection details to client-side code
+### Projects
+- `/api/projects` — CRUD for projects (POST, GET, PUT, DELETE)
 
-### 2. Backend API Proxy
+### Tasks
+- `/api/tasks` — CRUD for tasks (POST, GET, PUT, DELETE)
 
-The frontend proxies requests to the backend API server.
-Routes implemented at `/src/app/api/auth-external/*` in the frontend package.
+### Events
+- `/api/events` — CRUD for events (POST, GET, PUT, DELETE)
 
-**Pros:**
+### Users
+- `/api/users` — CRUD for users (POST, GET, PUT, DELETE)
 
-- Maintains separation of concerns
-- Centralizes business logic in the backend
-- More secure (database details remain in backend)
+## Migration from MongoDB/Mongoose
 
-**Cons:**
-
-- Additional network hop (can increase latency)
-- Requires the backend service to be running
+- All endpoints have been refactored to use Prisma and PostgreSQL.
+- Legacy Mongoose/MongoDB logic has been removed.
 
 ## Getting Started
 
 1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start MongoDB (local or cloud instance)
-4. Set up environment variables:
-
-   - For frontend: Copy `.env.example` to `.env.local` in the frontend package
-   - For backend: Copy `.env.example` to `.env` in the backend package
-
-5. Run the development servers:
-
-   ```bash
-   # Run both frontend and backend
-   npm run dev:all
-
-   # Or run them separately
-   npm run dev:frontend
-   npm run dev:backend
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+2. Install dependencies
+3. Set up your `.env` files (see `.env.example`)
+4. Run database migrations with `npx prisma migrate dev`
+5. Start the development server with `npm run dev`
 
 ## Project Structure
 
@@ -100,16 +95,14 @@ packages/
 ├── frontend/             # Next.js application
 │   ├── src/
 │   │   ├── app/          # App router pages
-│   │   │   ├── api/      # Direct MongoDB API routes
-│   │   │   ├── api-external/ # Backend proxy API routes
+│   │   │   ├── api/      # API routes
 │   │   │   └── ...       # Page components
 │   │   ├── components/   # React components
-│   │   ├── models/       # Mongoose models
-│   │   └── lib/          # Utility functions
+│   │   ├── lib/          # Utility functions
+│   │   └── ...           # Other frontend files
 ├── backend/              # Hono.js API server
 │   ├── src/
 │   │   ├── controllers/  # API controllers
-│   │   ├── models/       # Mongoose models
 │   │   ├── routes/       # API routes
 │   │   ├── middleware/   # Middleware functions
 │   │   └── services/     # Business logic
@@ -127,3 +120,9 @@ packages/
 - `npm run build:all` - Build both frontend and backend
 - `npm run start:all` - Start both servers in production mode
 - `npm run lint` - Run ESLint across all packages
+
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+[MIT](LICENSE)

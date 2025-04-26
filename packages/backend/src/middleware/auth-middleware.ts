@@ -1,5 +1,6 @@
 import { Context, MiddlewareHandler, Next } from 'hono';
 import { verifyToken, getTokenFromHeader } from '../utils/jwt';
+import { setUserIdOnSession } from '../prisma';
 
 /**
  * Authentication middleware to protect routes
@@ -27,6 +28,9 @@ export const authenticate: MiddlewareHandler = async (c: Context, next: Next) =>
       
       // Set user ID in the context
       c.set('userId', decoded.userId as string);
+
+      // Set the PostgreSQL session variable for RLS
+      await setUserIdOnSession(decoded.userId as string);
       
       // Continue to the next middleware/handler
       await next();

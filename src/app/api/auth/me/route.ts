@@ -1,17 +1,15 @@
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { getMe } from './prisma-me';
 
 const JWT_SECRET = process.env.JWT_SECRET || "changeme_secret";
 
 export async function GET() {
   try {
     const cookie = cookies().get("token");
-    if (!cookie) {
-      return new Response(JSON.stringify({ message: "Not authenticated" }), { status: 401 });
-    }
-    const token = cookie.value;
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return new Response(JSON.stringify({ authenticated: true, user: decoded }), { status: 200 });
+    // Use Prisma-based user lookup
+    const token = cookie?.value || '';
+    const { status, body } = await getMe(token);
+    return new Response(JSON.stringify(body), { status });
   } catch {
     return new Response(JSON.stringify({ message: "Not authenticated" }), { status: 401 });
   }

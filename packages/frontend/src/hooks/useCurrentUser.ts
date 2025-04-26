@@ -1,7 +1,8 @@
 import { useSession } from "next-auth/react";
 
 export function useCurrentUser() {
-  const { data, status } = useSession();
+  const session = useSession();
+  const { data, status } = session || {};
   // NextAuth's default session.user does not include id by default, so we fallback to email as a unique identifier
   const user = data?.user && {
     ...data.user,

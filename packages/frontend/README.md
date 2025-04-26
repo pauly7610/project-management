@@ -2,74 +2,53 @@
 
 This package contains the Next.js frontend application for Motion Magic.
 
-## Authentication API Implementations
+## Backend API & Authentication
 
-The application supports two different approaches for handling authentication:
+All authentication and data operations now use **Prisma** with **PostgreSQL** via the backend API. The direct MongoDB/Mongoose approach has been fully replaced.
 
-### 1. MongoDB Direct Connection (Default)
+### Auth API Endpoints
+- `/api/auth/signup` — User registration
+- `/api/auth/signin` — User login
+- `/api/auth/forgot-password` — Request password reset
+- `/api/auth/reset-password` — Reset password
+- `/api/auth/verify` — Email verification
+- `/api/auth/verify-email` — Email verification (alias)
+- `/api/auth/me` — Get current user info
 
-The first approach involves connecting directly to MongoDB from the Next.js API routes.
-This approach can be found in:
+### Projects, Tasks, Events, Users
+- `/api/projects` — CRUD for projects (POST, GET, PUT, DELETE)
+- `/api/tasks` — CRUD for tasks (POST, GET, PUT, DELETE)
+- `/api/events` — CRUD for events (POST, GET, PUT, DELETE)
+- `/api/users` — CRUD for users (POST, GET, PUT, DELETE)
 
-- `/src/app/api/auth/signup/route.ts`
-- `/src/app/api/auth/verify/route.ts`
-- `/src/app/api/auth/signin/route.ts`
-- `/src/app/api/auth/reset-password/route.ts`
+### Teams & Integrations
+- `/api/teams/create` — Create team
+- `/api/teams/invite` — Invite member
+- `/api/teams/check-name` — Check team name uniqueness
+- `/api/integrations/list` — List available integrations
+- `/api/integrations/connect` — Connect a tool
+- `/api/integrations/oauth/start` — Start OAuth flow
+- `/api/integrations/oauth/callback` — Handle OAuth callback
 
-These routes use Mongoose models defined in `/src/models/` to interact with the database directly.
+## Usage
 
-**Pros:**
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Set up your `.env.local` as needed
+3. Start the frontend:
+   ```bash
+   npm run dev
+   ```
 
-- Simpler deployment (no need for a separate backend)
-- Lower latency (direct database access)
-
-**Cons:**
-
-- Duplicates database logic between frontend and backend
-- May expose database connection details to client-side code
-
-### 2. Backend API Proxy
-
-The second approach involves proxying requests to the backend API.
-This approach can be found in:
-
-- `/src/app/api/auth-external/signup/route.ts`
-- `/src/app/api/auth-external/verify/route.ts`
-- `/src/app/api/auth-external/signin/route.ts`
-- `/src/app/api/auth-external/reset-password/route.ts`
-
-These routes forward requests to the backend API at the URL specified in the `BACKEND_API_URL` environment variable.
-
-**Pros:**
-
-- Maintains separation of concerns
-- Centralizes business logic in the backend
-- More secure (database details remain in backend)
-
-**Cons:**
-
-- Additional network hop (can increase latency)
-- Requires the backend service to be running
-
-## How to Use
-
-To use either approach:
-
-1. For direct MongoDB connection:
-
-   - Set the `MONGODB_URI` environment variable
-   - Use API endpoints at `/api/auth/*`
-
-2. For backend API proxy:
-   - Set the `BACKEND_API_URL` environment variable (default: http://localhost:5000/api)
-   - Use API endpoints at `/api/auth-external/*`
+## Notes
+- All database and authentication logic is handled by the backend via Prisma/PostgreSQL.
+- Update your `.env.local` to point to the correct backend API URL.
 
 ## Environment Variables
 
 ```
-# Required for MongoDB direct connection
-MONGODB_URI=mongodb://localhost:27017/motion-magic
-
 # Required for backend API proxy
 BACKEND_API_URL=http://localhost:5000/api
 
@@ -79,3 +58,6 @@ RESEND_API_KEY=your-email-service-api-key
 EMAIL_FROM=noreply@motionmagic.space
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
+
+## License
+[MIT](../../LICENSE)

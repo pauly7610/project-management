@@ -1,0 +1,145 @@
+// Prisma schema for Motion Magic backend
+// PostgreSQL connection
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  password          String
+  isVerified        Boolean  @default(false)
+  verificationToken String?
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  settings          Settings?
+  projectsOwned     Project[] @relation("OwnedProjects")
+  projectsTeam      Project[] @relation("TeamMembers", references: [id])
+  tasksAssigned     Task[]    @relation("AssignedTasks")
+  tasksCreated      Task[]    @relation("CreatedTasks")
+  eventsOrganized   Event[]   @relation("OrganizedEvents")
+  eventsAttending   Event[]   @relation("AttendingEvents", references: [id])
+}
+
+// Project model
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  status      String
+  owner       User     @relation("OwnedProjects", fields: [ownerId], references: [id])
+  ownerId     String
+  team        User[]   @relation("TeamMembers")
+  tasks       Task[]
+  priority    String
+  progress    Int      @default(0)
+  budget      Float?
+  actualCost  Float?
+  tags        String[]
+  events      Event[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Task model
+model Task {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  dueDate       DateTime
+  status        String
+  project       Project? @relation(fields: [projectId], references: [id])
+  projectId     String?
+  assignedTo    User?    @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  assignedToId  String?
+  createdBy     User     @relation("CreatedTasks", fields: [createdById], references: [id])
+  createdById   String
+  priority      String
+  estimatedHours Float?
+  actualHours   Float?
+  comments      Comment[]
+  attachments   Attachment[]
+  tags          String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  text      String
+  createdAt DateTime @default(now())
+  task      Task?    @relation(fields: [taskId], references: [id])
+  taskId    String?
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  type      String
+  size      Int
+  task      Task?    @relation(fields: [taskId], references: [id])
+  taskId    String?
+}
+
+// Event model
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  allDay      Boolean  @default(false)
+  location    String?
+  organizer   User     @relation("OrganizedEvents", fields: [organizerId], references: [id])
+  organizerId String
+  attendees   User[]   @relation("AttendingEvents")
+  recurrence  String?
+  color       String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  projectId   String?
+  reminders   Reminder[]
+  type        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Reminder {
+  id      String   @id @default(uuid())
+  time    DateTime
+  sent    Boolean  @default(false)
+  event   Event    @relation(fields: [eventId], references: [id])
+  eventId String
+}
+
+// Settings model
+model Settings {
+  id                String   @id @default(uuid())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @unique
+  theme             String
+  language          String
+  timeZone          String
+  dateFormat        String
+  emailNotifications Boolean
+  pushNotifications  Boolean
+  calendarDefaultView String
+  calendarStartOfWeek Int
+  calendarShowWeekends Boolean
+  calendarWorkingStart String
+  calendarWorkingEnd   String
+  dashboardLayout      String
+  dashboardWidgets     String[]
+}

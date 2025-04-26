@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,19 +23,7 @@ export default function RootLayout({
       <head>
         {/* Google Analytics GA4 */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
-                `,
-              }}
-            />
-          </>
+          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
       </head>
       <body className={inter.className}>

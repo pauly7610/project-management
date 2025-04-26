@@ -4,7 +4,7 @@ function validateTeamName(name: string) {
   return name.trim().length >= 3;
 }
 
-export default function TeamSetupStep({ onNext, userId }: { onNext: (teamId: string) => void, userId: string }) {
+export default function TeamSetupStep({ onNext }: { onNext: (teamId: string) => void }) {
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ export default function TeamSetupStep({ onNext, userId }: { onNext: (teamId: str
       const res = await fetch("/api/teams/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: teamName, description, ownerId: userId })
+        body: JSON.stringify({ name: teamName, description })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create team");
